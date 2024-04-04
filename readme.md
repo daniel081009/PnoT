@@ -41,13 +41,13 @@ PnoT은 노트앱을 쉽게 저장,공유,동기화, 커스터마이징이 가�
 
 ## TODO BackEnd
 
-- [ x ] Auth
-  - [ x ] user rsa keygen
-  - [ x ] user file auth
-- [ x ] File Upload,Download
-  - [ x ] file upload
-  - [ x ] file download
-- [ x ] File History
+- [x] Auth
+  - [x] user rsa keygen
+  - [x] user file auth
+- [x] File Upload,Download
+  - [x] file upload
+  - [x] file download
+- [x] File History
 - [ ] File Sync
 - [ ] File Share
 
