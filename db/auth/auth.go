@@ -17,6 +17,23 @@ func CreateUser(username string, password string) error {
 		return bucket.Put([]byte(username), []byte(password))
 	})
 }
+func ExistsUser(username string) bool {
+	var exists bool
+	db.MyDB.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte("users"))
+		if bucket == nil {
+			exists = false
+			return nil
+		}
+		if string(bucket.Get([]byte(username))) != "" {
+			exists = true
+			return nil
+		}
+		exists = false
+		return nil
+	})
+	return exists
+}
 func LoginUser(username string, password string) error {
 	return db.MyDB.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte("users"))

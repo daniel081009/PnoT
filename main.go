@@ -2,18 +2,20 @@ package main
 
 import (
 	"PnoT/auth"
+	"PnoT/config"
 	db_file "PnoT/db/file"
 	"PnoT/util"
 	"fmt"
 	"sync"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func BanchMark() {
-	// e := auth.CreateUser("test", "test")
-	// fmt.Println(e)
+	e := auth.CreateUser("aa", "aa")
+	fmt.Println(e)
 	// t, e := auth.LoginUser("test", "test")
 	// fmt.Println(t, e)
 	// t, e = auth.ValidateJWT(t)
@@ -22,7 +24,7 @@ func BanchMark() {
 	var wg sync.WaitGroup
 
 	n := time.Now()
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 1000; i++ {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
@@ -35,7 +37,7 @@ func BanchMark() {
 
 	wg.Wait()
 	et := time.Now()
-	fmt.Println("100 Item Add", et.Sub(n))
+	fmt.Println("1000 Item Add", et.Sub(n))
 
 	n = time.Now()
 	for i := 0; i < 100; i++ {
@@ -78,8 +80,10 @@ func BanchMark() {
 }
 
 func main() {
+	BanchMark()
 	r := gin.Default()
 
+	r.Use(cors.Default())
 	a := r.Group("api/")
 	{
 		at := a.Group("auth/")
@@ -111,10 +115,14 @@ func main() {
 				type req struct {
 					Username string `json:"username" binding:"required"`
 					Password string `json:"password" binding:"required"`
+					Rootpass string `json:"rootpass"`
 				}
 				var data req
 				if util.BindJSON(c, &data) != nil {
 					util.Error(c, 400, "Invalid request")
+					return
+				} else if data.Rootpass != config.C.RootPassword {
+					util.Error(c, 400, "Invalid root password")
 					return
 				}
 
@@ -150,7 +158,6 @@ func main() {
 				util.Error(c, 400, "Invalid path")
 				return
 			}
-			fmt.Println(user, path)
 			file, err := db_file.GetFile(user, path)
 			if err != nil || (!file.Public && c.GetString("username") != file.Autor) {
 				fmt.Println(err)
@@ -159,6 +166,14 @@ func main() {
 			}
 
 			c.JSON(200, file)
+		})
+		a.GET("/files", func(c *gin.Context) {
+			files, err := db_file.GetAllFiles(c.GetString("username"))
+			if err != nil {
+				util.Error(c, 404, "Files not found")
+				return
+			}
+			c.JSON(200, files)
 		})
 		a.POST("/file", func(c *gin.Context) {
 			type req struct {
@@ -202,6 +217,29 @@ func main() {
 					"message": "File created",
 				})
 			}
+		})
+		a.DELETE("/file", func(c *gin.Context) {
+			path := c.Query("path")
+			file, err := db_file.GetFile(c.GetString("username"), path)
+			if err != nil {
+				util.Error(c, 400, "File not found")
+				return
+			}
+			if path == "" {
+				util.Error(c, 400, "Invalid path")
+				return
+			} else if c.GetString("username") == file.Autor {
+				util.Error(c, 400, "Invalid user")
+				return
+			}
+			err = db_file.DeleteFile(c.GetString("username"), path)
+			if err != nil {
+				util.Error(c, 400, "File not found")
+				return
+			}
+			c.JSON(200, gin.H{
+				"message": "File deleted",
+			})
 		})
 	}
 

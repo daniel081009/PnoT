@@ -3,30 +3,35 @@ POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
 {
-    "username": "test",
-    "password": "wow"
+    "username": "aa",
+    "password": "aa"
 }
 ### Register
 POST http://localhost:8080/api/auth/register
 Content-Type: application/json
 
 {
-    "username": "test",
+    "username": "testaa",
     "password": "wow"
 }
 
 ### File get
-GET http://localhost:8080/api/file?path=te21aa1
+GET http://localhost:8080/api/file?path=te21aa1&username=test
 
-Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTIzMzU4NTQsInVzZXJuYW1lIjoidGVzdCJ9.52DHoy46ehGtM4hxI4rz6JLcXOoJS_tGcu-levJFYAY
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTIzNjk1NzAsInVzZXJuYW1lIjoidGVzdCJ9.5O6k-ZWUdt-DtmMTngEyqOBMg8Iir59snWvfh7vbzLk
 
+### Files get
+GET http://localhost:8080/api/files?username=test
+
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTIzNzIwNDgsInVzZXJuYW1lIjoiYWEifQ.c8H6QY1z23ghfe_do6qFf2VvzqlfRqdkpGPeAf9TlgA
 ### File upload
 POST http://localhost:8080/api/file
 Content-Type: application/json
-Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTIzMzU4NTQsInVzZXJuYW1lIjoidGVzdCJ9.52DHoy46ehGtM4hxI4rz6JLcXOoJS_tGcu-levJFYAY
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTIzNjk1NzAsInVzZXJuYW1lIjoidGVzdCJ9.5O6k-ZWUdt-DtmMTngEyqOBMg8Iir59snWvfh7vbzLk
 
 
 {
-    "path": "te21aa1",
-    "content": "conadaaent"
+    "path": "12312",
+    "content": "conadaaent",
+    "public": false
 }

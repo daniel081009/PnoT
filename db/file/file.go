@@ -98,6 +98,7 @@ func UpdateFile(username string, path string, data string, public bool) error {
 		file.Content = data
 		file.Edit_date = time.Now()
 		file.Public = public
+		file.Hash = file.GetHash()
 		ba, e := file.ToByte()
 		if e != nil {
 			return e
@@ -105,12 +106,44 @@ func UpdateFile(username string, path string, data string, public bool) error {
 		return bucket.Put([]byte(file.Path), ba)
 	})
 }
-func DeleteFile(username string, key []byte) error {
+func DeleteFile(username string, path string) error {
 	return db.MyDB.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(username))
 		if bucket == nil {
 			return nil
 		}
-		return bucket.Delete(key)
+		return bucket.Delete([]byte(path))
 	})
+}
+
+type CheckFile struct {
+	Path string `json:"path"`
+	Hash string `json:"hash"`
+}
+
+func CheckFiles(username string, files []CheckFile) (map[string]file.File, error) {
+	m := make(map[string]file.File)
+	err := db.MyDB.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(username))
+		if bucket == nil {
+			return nil
+		}
+		for _, f := range files {
+			b := bucket.Get([]byte(f.Path))
+			if b == nil {
+				continue
+			}
+			file := file.File{}
+			err := file.LoadFile(b)
+			if err != nil {
+				return err
+			}
+			if file.GetHash() != f.Hash {
+				m[f.Path] = file
+			}
+		}
+		return nil
+	})
+	return m, err
+
 }

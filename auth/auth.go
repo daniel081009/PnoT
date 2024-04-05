@@ -43,6 +43,9 @@ func ValidateJWT(tokenString string) (string, error) {
 }
 
 func CreateUser(username string, password string) error {
+	if db_auth.ExistsUser(username) {
+		return errors.New("user already exists")
+	}
 	e := db_auth.CreateUser(username, password)
 	if e != nil {
 		return e
